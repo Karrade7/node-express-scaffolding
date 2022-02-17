@@ -1,0 +1,15 @@
+{
+    "name": "[scaffolding app]",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "start": "node app.js",
+        "dev": "nodemon npm start",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "config": "^3.3.7",
+        "express": "^4.17.3",
+        "winston": "^3.6.0"
+    }
+}
