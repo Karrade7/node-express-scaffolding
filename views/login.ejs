@@ -1,0 +1,19 @@
+<!-- views/login.ejs -->
+
+<form action="/login" method="POST" novalidate>
+    <div class="form-field <%= (locals?.errors?.username) ? 'form-field-invalid' : '' %>">
+      <label for="username">User</label>
+      <input type="text" style="width: 100%;" name="username" rows="1" >
+      <% if (locals?.errors?.username) { %><div class="error"><%= errors.username.msg %></div><% } %>
+    </div>
+
+    <div class="form-field <%= (locals?.errors?.password) ? 'form-field-invalid' : '' %>">
+      <label for="password">Passkey</label>
+      <input type="password" style="width: 100%;" name="password" rows="1" >
+      <% if (locals?.errors?.password) { %><div class="error"><%= errors.password.msg %></div><% } %>
+    </div>
+    
+    <div class="form-actions">
+      <button class="btn" type="submit">Go</button>
+    </div>
+  </form>
