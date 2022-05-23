@@ -22,7 +22,7 @@ router.get('/', isAuthenticated, function (req, res, next) {
 // GET login page.
 router.get('/login', function (req, res, next) {
   logger.info("Login Page - Get");
-  res.render('login', { title: 'Home'});
+  res.render('login', { title: 'Login'});
 });
 
 // POST login page.
