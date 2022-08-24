@@ -9,7 +9,6 @@ const errorHandler = require(path.join(ABSOLUTE_PATH, "util/errorHandler.js")); 
 const passport = require("passport");
 var jwt = require("jsonwebtoken"); // used to verify and decrypt json web token (jwt)
 var jwkToPem = require("jwk-to-pem");
-//var fetch = require("fetch");
 
 /*
 Authentication Middleware - PassportJS
@@ -105,13 +104,10 @@ passport.use(
       callbackURL: configCognito.OAUTH_CALLBACK_URL,
     },
     async function (accessToken, refreshToken, profile, done) {
-      console.log("user profile: " + JSON.stringify(profile));
-
       // verify token
       try {
         const iss = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_UocMCGVE8";
         const jwt = await ValidateJWTToken(accessToken, iss);
-        console.log(jwt);
         let username = jwt.payload.username;
         let groups = jwt.payload["cognito:groups"] || [];
         logger.info("user logged in via cognito: " + username + ". Member of group(s): " + groups.join());
@@ -129,21 +125,19 @@ async function ValidateJWTToken(token, iss) {
   //validate the token
   var decodedJwt = jwt.decode(token, { complete: true });
   if (!decodedJwt) {
-    console.log("Not a valid JWT token");
+    logger.warn("Not a valid JWT token");
     return;
   }
 
   //Download the JWKs and save it as PEM
   return fetch(iss + "/.well-known/jwks.json")
     .then((response) => {
-      console.log(response.status);
       if (response.status === 200) {
         // Body will be a JSON encoded stream
         // we want to finalize the response and get the JSON
         return response.json();
       } else {
         //Unable to download JWKs, fail the call
-        console.log("Error! Unable to download JWKs");
         throw new Error("Error! Unable to download JWKs");
       }
     })
@@ -161,19 +155,18 @@ async function ValidateJWTToken(token, iss) {
       //Fail if the token is not jwt
       var decodedJwt = jwt.decode(token, { complete: true });
       if (!decodedJwt) {
-        console.log("Not a valid JWT token");
-        context.fail("Unauthorized");
+        logger.warn("Not a valid JWT token");
         return;
       }
 
       //Fail if token is not from your User Pool
       if (decodedJwt.payload.iss != iss) {
-        console.log("invalid issuer");
+        logger.warn("invalid issuer");
         return;
       }
       //Reject the jwt if it's not an 'Access Token'
       if (decodedJwt.payload.token_use != "access") {
-        console.log("Not an access token");
+        logger.warn("Not an access token");
         return;
       }
 
@@ -181,7 +174,7 @@ async function ValidateJWTToken(token, iss) {
       var kid = decodedJwt.header.kid;
       var pem = pems[kid];
       if (!pem) {
-        console.log("Invalid access token");
+        logger.warn("Invalid access token");
         return;
       }
 
@@ -198,8 +191,7 @@ async function ValidateJWTToken(token, iss) {
       return decodedJwt;
     })
     .catch(function (error) {
-      console.log("error");
-      console.log(error);
+      throw new Error("Unknown error Validating JWT");
     });
 }
 
