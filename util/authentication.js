@@ -1,12 +1,15 @@
 // requirements for the entire app
-'use strict';
-const config = require('config');
-const logger = require('winston'); // Logger being used
-const path = require('path'); // module to read paths on the server
-const errorHandler = require(path.join(ABSOLUTE_PATH, 'util/errorHandler.js')); // load error routines
+"use strict";
+const config = require("config");
+const logger = require("winston"); // Logger being used
+const path = require("path"); // module to read paths on the server
+const errorHandler = require(path.join(ABSOLUTE_PATH, "util/errorHandler.js")); // load error routines
 
 // Requirements for this script
-const passport = require('passport');
+const passport = require("passport");
+var jwt = require("jsonwebtoken"); // used to verify and decrypt json web token (jwt)
+var jwkToPem = require("jwk-to-pem");
+//var fetch = require("fetch");
 
 /*
 Authentication Middleware - PassportJS
@@ -55,100 +58,195 @@ a simple example:
   passport.use(new passportStrategy(verifyCallback(password, done){
     if (password==correct) {done(null,user)} else {done(error, false, "not authenticated")}
   }))
+
+
+Cognito specific example
 */
 
-
 // by default local expects user, passowrd to exist or it will send Bad Request
-const passportLocalStrategy = require('passport-local');
-passport.use(new passportLocalStrategy(
-  function verify(username, password, done) {
+const passportLocalStrategy = require("passport-local");
+passport.use(
+  new passportLocalStrategy(function verify(username, password, done) {
     logger.info("Authenticating via Local Username and Password");
     try {
       // temporarily using test username/password of hello/world
-      if (username == "hello" && password == "world") { var authenticatedUser = "test"; }
+      if (username == "hello" && password == "world") {
+        var authenticatedUser = "test";
+      }
 
       // if the authenticatedUser exists, then send it to done. Otherwise say username or password faled
       if (authenticatedUser) {
         logger.info(`Successful login: ${username}`);
         return done(null, username);
       } else {
-          logger.info(`Failed login: ${username}`)
-        return done(null, false, { message: 'Incorrect username or password.' });
+        logger.info(`Failed login: ${username}`);
+        return done(null, false, { message: "Incorrect username or password." });
       }
     } catch (error) {
       // Something went wrong, return the error
       return done(error);
     }
+  })
+);
+
+var OAuth2Strategy = require("passport-oauth2").Strategy;
+const configCognito = config.auth.oauth;
+// OAuth expects options such as provider's OAuth 2.0 endpoints, as well as the client identifer and secret
+// The strategy requires a verify callback, which receives an access token and profile, and calls cb done providing a user.
+
+// cognito expects a login at cognito_domain/login with clientid
+passport.use(
+  new OAuth2Strategy(
+    {
+      authorizationURL: `https://${configCognito.OAUTH_DOMAIN}/login`,
+      tokenURL: `https://${configCognito.OAUTH_DOMAIN}/oauth2/token`,
+      clientID: configCognito.OAUTH_CLIENT_ID,
+      clientSecret: configCognito.OAUTH_CLIENT_SECRET,
+      callbackURL: configCognito.OAUTH_CALLBACK_URL,
+    },
+    async function (accessToken, refreshToken, profile, done) {
+      console.log("user profile: " + JSON.stringify(profile));
+
+      // verify token
+      try {
+        const iss = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_UocMCGVE8";
+        const jwt = await ValidateJWTToken(accessToken, iss);
+        console.log(jwt);
+        let username = jwt.payload.username;
+        let groups = jwt.payload["cognito:groups"] || [];
+        logger.info("user logged in via cognito: " + username + ". Member of group(s): " + groups.join());
+
+        done(null, { username: username, groups: groups, accessToken: accessToken }); // Keep accessToken for passing to API calls
+      } catch (err) {
+        // catches errors both in fetch and response.json
+        console.error(err);
+      }
+    }
+  )
+);
+
+async function ValidateJWTToken(token, iss) {
+  //validate the token
+  var decodedJwt = jwt.decode(token, { complete: true });
+  if (!decodedJwt) {
+    console.log("Not a valid JWT token");
+    return;
   }
-));
 
-//var OAuth2Strategy = require('passport-oauth2').Strategy
+  //Download the JWKs and save it as PEM
+  return fetch(iss + "/.well-known/jwks.json")
+    .then((response) => {
+      console.log(response.status);
+      if (response.status === 200) {
+        // Body will be a JSON encoded stream
+        // we want to finalize the response and get the JSON
+        return response.json();
+      } else {
+        //Unable to download JWKs, fail the call
+        console.log("Error! Unable to download JWKs");
+        throw new Error("Error! Unable to download JWKs");
+      }
+    })
+    .then((body) => {
+      // the body will contain an object with a key of keys and value of an array of the keys
+      // ex: { keys: [{kty: 'RSA',e: 'AQAB',use: 'sig',kid: 'eu-north-11',alg: 'RS512',n:'AI...'}, ...]
+      // map over each key to get a PEM version
+      // note a sideeffecgt is being used here to create the pem object
+      let pems = {};
+      body.keys.forEach((key) => {
+        const pem = jwkToPem({ kty: key.kty, n: key.n, e: key.e });
+        pems[key.kid] = pem;
+      });
 
-/*
-passport.use(new OAuth2Strategy({
-  //authorizationURL: `https://${configCognito.COGNITO_DOMAIN}/login`,
-  //tokenURL: `https://${configCognito.COGNITO_DOMAIN}/oauth2/token`,
-  //clientID: configCognito.COGNITO_APP_CLIENT_ID,
-  //clientSecret: configCognito.COGNITO_APP_CLIENT_SECRET,
-  //callbackURL: configCognito.COGNITO_APP_CLIENT_CALLBACK_URL
-},
-function (accessToken, refreshToken, profile, done) {
-  //let jwk = JSON.parse(config.COGNITO_JWK)
-  //let jwk=configCognito.COGNITO_JWK;
-  //let pem = jwkToPem(jwk)
-  //let payload = jwt.verify(accessToken, pem)
-  //let groups = payload['cognito:groups'] || []
+      //Fail if the token is not jwt
+      var decodedJwt = jwt.decode(token, { complete: true });
+      if (!decodedJwt) {
+        console.log("Not a valid JWT token");
+        context.fail("Unauthorized");
+        return;
+      }
 
-  done(null, { groups: groups, accessToken: accessToken }) // Keep accessToken for passing to API calls
-}))
-*/
+      //Fail if token is not from your User Pool
+      if (decodedJwt.payload.iss != iss) {
+        console.log("invalid issuer");
+        return;
+      }
+      //Reject the jwt if it's not an 'Access Token'
+      if (decodedJwt.payload.token_use != "access") {
+        console.log("Not an access token");
+        return;
+      }
 
-const HeaderAPIKeyStrategy = require('passport-headerapikey').HeaderAPIKeyStrategy
+      //Get the kid from the token and retrieve corresponding PEM
+      var kid = decodedJwt.header.kid;
+      var pem = pems[kid];
+      if (!pem) {
+        console.log("Invalid access token");
+        return;
+      }
+
+      jwt.verify(token, pem, { issuer: iss }, function (err, payload) {
+        if (err) {
+          logger.info("invalid token");
+          throw new Error("Invalid token");
+        }
+        //Valid token. Generate the API Gateway policy for the user
+        logger.info("Valid token for user: " + decodedJwt.payload.username);
+        return payload;
+      });
+
+      return decodedJwt;
+    })
+    .catch(function (error) {
+      console.log("error");
+      console.log(error);
+    });
+}
+
+const HeaderAPIKeyStrategy = require("passport-headerapikey").HeaderAPIKeyStrategy;
 // new HeaderAPIKeyStrategy(headerOptions, passReqToCallback, verify);
 
-passport.use(new HeaderAPIKeyStrategy(
-    { },
-    false,
-  function (apikey, done) {
+passport.use(
+  new HeaderAPIKeyStrategy({}, false, function (apikey, done) {
     logger.info("Authenticating via API Key");
     logger.info(`apikey: ${apikey}`);
 
-  try {
-    if (apikey == "abc123") { 
-      var authenticatedUser = "test";
+    try {
+      if (apikey == "abc123") {
+        var authenticatedUser = "test";
+      }
+      // if the authenticatedUser exists, then send it to done. Otherwise say username or password failed
+      if (authenticatedUser) {
+        logger.info(`User successfulled logged in via APIKey: ${authenticatedUser}`);
+        return done(null, authenticatedUser);
+      } else {
+        logger.info(`User failed login in via APIKey: ${apikey}`);
+        return done(null, false, { message: "Incorrect username or password." });
+      }
+    } catch (error) {
+      // Something went wrong, return the error
+      return done(error);
     }
-    // if the authenticatedUser exists, then send it to done. Otherwise say username or password failed
-    if (authenticatedUser) {
-      logger.info(`User successfulled logged in via APIKey: ${authenticatedUser}`); 
-      return done(null, authenticatedUser);
-    } else {
-      logger.info(`User failed login in via APIKey: ${apikey}`); 
-      return done(null, false, { message: 'Incorrect username or password.' });
-    }
-  } catch (error) {
-    // Something went wrong, return the error
-    return done(error);
-  }
-}));
+  })
+);
 
-
-passport.serializeUser(function(user, done) {
-  process.nextTick(function() {
+passport.serializeUser(function (user, done) {
+  process.nextTick(function () {
     done(null, { username: user.username });
   });
 });
 
-passport.deserializeUser(function(user, done) {
-  process.nextTick(function() {
+passport.deserializeUser(function (user, done) {
+  process.nextTick(function () {
     return done(null, user);
   });
 });
 
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
-    return next()
+    return next();
   }
-  res.redirect('/login') // if not auth
+  res.redirect("/login"); // if not auth
 }
 
 module.exports = isAuthenticated;

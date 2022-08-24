@@ -8,7 +8,7 @@ const errorHandler = require(path.join(ABSOLUTE_PATH, 'util/errorHandler.js')); 
 
 // Requirements for this script
 const express = require('express'); // Common Web application development for NodeJS
-const passport = require('passport');
+const passport = require('passport'); // Commonly used authenticaton middleware for NodeJS
 
 /*
 Create Express App

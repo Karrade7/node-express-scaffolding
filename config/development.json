@@ -2,7 +2,7 @@
     "test": "foo",
     "server": {
         "PORT": 3000,
-        "SECURE": true
+        "SECURE": false
     },
     "auth": {
         "oauth": {
@@ -10,16 +10,6 @@
             "OAUTH_CLIENT_SECRET": "",
             "OAUTH_CALLBACK_URL": "",
             "OAUTH_DOMAIN": ""
-        }
-    },
-    "logger": {
-        "levels": {
-            "fatal": 0,
-            "error": 1,
-            "warn": 2,
-            "info": 3,
-            "debug": 4,
-            "trace": 5
         }
     }
 }
