@@ -24,10 +24,6 @@ require(path.join(ABSOLUTE_PATH, "util/authentication.js"));
 // Configure the express app
 var app = require(path.join(ABSOLUTE_PATH, "util/expressapp.js"));
 
-// Setup the router by getting all the routes and adding to the middleware
-// var indexRouter = require('./routes/index');
-// app.use('/', indexRouter);
-
 // Now that the app is configured
 // Let's start the app
 // const PORT = process.env.PORT || config?.app?.port || 3000; // use either the port from environment, config file or default of 3000
