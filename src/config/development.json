@@ -12,8 +12,8 @@
             "OAUTH_DOMAIN": ""
         },
         "auth0": {
-            "authRequired": ,
-            "auth0Logout": ,
+            "authRequired": "",
+            "auth0Logout": "",
             "secret": "",
             "baseURL": "",
             "clientID": "",

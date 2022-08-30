@@ -7,9 +7,9 @@ const errorHandler = require(path.join(ABSOLUTE_PATH, "util/errorHandler.js")); 
 
 // Requirements for this script
 const passport = require("passport");
-var jwt = require("jsonwebtoken"); // used to verify and decrypt json web token (jwt)
-var jwkToPem = require("jwk-to-pem");
-const { auth } = require("express-openid-connect");
+//var jwt = require("jsonwebtoken"); // used to verify and decrypt json web token (jwt)
+//var jwkToPem = require("jwk-to-pem");
+//const { auth } = require("express-openid-connect");
 
 /*
 Authentication Middleware - PassportJS
@@ -100,7 +100,7 @@ passport.use(
     {
       authorizationURL: `https://${configCognito.OAUTH_DOMAIN}/login`,
       tokenURL: `https://${configCognito.OAUTH_DOMAIN}/oauth2/token`,
-      clientID: configCognito.OAUTH_CLIENT_ID,
+      clientID: "xxx", //configCognito.OAUTH_CLIENT_ID,
       clientSecret: configCognito.OAUTH_CLIENT_SECRET,
       callbackURL: configCognito.OAUTH_CALLBACK_URL,
     },

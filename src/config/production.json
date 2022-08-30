@@ -1,8 +1,8 @@
 {
     "test": "foo",
     "server": {
-        "PORT": 443,
-        "SECURE": true
+        "PORT": 3000,
+        "SECURE": false
     },
     "auth": {
         "oauth": {

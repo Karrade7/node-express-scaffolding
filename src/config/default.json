@@ -2,7 +2,7 @@
     "test": "foo",
     "server": {
         "PORT": 3000,
-        "SECURE": true
+        "SECURE": false
     },
     "auth": {
         "oauth": {
