@@ -54,4 +54,6 @@ router.get(
   }
 );
 
+router.get("/auth/auth0");
+
 module.exports = router;

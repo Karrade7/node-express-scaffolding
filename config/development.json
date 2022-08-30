@@ -10,6 +10,14 @@
             "OAUTH_CLIENT_SECRET": "",
             "OAUTH_CALLBACK_URL": "",
             "OAUTH_DOMAIN": ""
+        },
+        "auth0": {
+            "authRequired": ,
+            "auth0Logout": ,
+            "secret": "",
+            "baseURL": "",
+            "clientID": "",
+            "issuerBaseURL": ""
         }
     }
 }
