@@ -3,7 +3,7 @@
 const config = require("config");
 const logger = require("winston"); // Logger being used
 const path = require("path"); // module to read paths on the server
-const errorHandler = require(path.join(ABSOLUTE_PATH, "util/errorHandler.js")); // load error routines
+const errorHandler = require(path.join(ABSOLUTE_PATH, "util/errorHandler")); // load error routines
 
 // Requirements for this script
 const passport = require("passport");
