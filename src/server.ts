@@ -5,7 +5,6 @@
 // this can be re-used later for clean includes that don't have require(../services/file) in some cases and require(services/file) in others
 // instead they are all require(path.join(ABSOLUTE_PATH, 'services/file'));
 const path = require("path"); // module to read paths on the server
-//mconst ABSOLUTE_PATH: string = path.resolve(__dirname); // set a consistent path for cleaner require commands
 declare global {
   var ABSOLUTE_PATH: string;
 }
@@ -28,8 +27,7 @@ require("./util/logger");
 require("./util/authentication");
 
 // Configure the express app
-//var app = require("./util/expressapp");
-var app = require("express");
+var app = require("./util/expressapp");
 
 // Now that the app is configured
 // Let's start the app
