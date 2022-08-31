@@ -13,7 +13,6 @@ import { Request, Response, NextFunction } from "express";
 
 var addAuthentication = function (app: any, config: any) {
   // auth router attaches /login, /logout, and /callback routes to the baseURL
-  console.log(config);
   if (config?.auth?.enabled === undefined || config?.auth?.enabled === false) {
     return;
   }
