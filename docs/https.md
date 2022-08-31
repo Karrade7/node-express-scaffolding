@@ -1,3 +1,6 @@
+Steps:
+openssl req -new -newkey rsa:2048 -x509 -nodes -days 390 -sha256 -keyout "server.key" -out "server.crt" -subj "/C=us/CN=localhost.local" -addext "subjectAltName = DNS:localhost"
+
 https://blog.gisspan.com/2016/04/making-sense-of-ssl-rsa-x509-and-csr.html]]]
 https://www.digicert.com/kb/ssl-support/openssl-quick-reference-guide.htm
 

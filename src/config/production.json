@@ -2,14 +2,27 @@
     "test": "foo",
     "server": {
         "PORT": 3000,
-        "SECURE": false
+        "SECURE": true
     },
     "auth": {
-        "oauth": {
-            "OAUTH_CLIENT_ID": "",
-            "OAUTH_CLIENT_SECRET": "",
-            "OAUTH_CALLBACK_URL": "",
-            "OAUTH_DOMAIN": ""
+        "defaultProvider": "oidc_auth0",
+        "oidc_auth0": {
+            "authRequired": false,
+            "auth0Logout": true,
+            "secret": "",
+            "baseURL": "",
+            "clientID": "xxxx",
+            "issuerBaseURL": ""
+        }
+    },
+    "logger": {
+        "levels": {
+            "fatal": 0,
+            "error": 1,
+            "warn": 2,
+            "info": 3,
+            "debug": 4,
+            "trace": 5
         }
     }
 }

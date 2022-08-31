@@ -1,15 +1,18 @@
 {
     "test": "foo",
     "server": {
-        "PORT": 3000,
-        "SECURE": false
+        "PORT": 443,
+        "SECURE": true
     },
     "auth": {
-        "oauth": {
-            "OAUTH_CLIENT_ID": "",
-            "OAUTH_CLIENT_SECRET": "",
-            "OAUTH_CALLBACK_URL": "",
-            "OAUTH_DOMAIN": ""
+        "defaultProvider": "oidc_auth0",
+        "oidc_auth0": {
+            "authRequired": false,
+            "auth0Logout": true,
+            "secret": "xxxxxxxxxxxxxx",
+            "baseURL": "",
+            "clientID": "xxxx",
+            "issuerBaseURL": "xxxx"
         }
     },
     "logger": {

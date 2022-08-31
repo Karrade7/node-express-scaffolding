@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title><%= title %></title>
-</head>
+<html lang="en">
+
+<%- include('./partials/head'); %>
+
 <body>
+<%- include('./partials/topnavbar'); %>
 
 <%# Middleware express-ejs-layouts inserts the render content into the next variable %>
 <%- body %>
 
-
+<%- include('./partials/footer'); %>
 </body>
 </html>

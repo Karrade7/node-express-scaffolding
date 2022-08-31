@@ -23,6 +23,7 @@ function errorHandler(error: Error, res: Response, next: NextFunction) {
   logger.error(`Error Logged:" ${error.message}`);
   if (res === undefined) {
     logger.error("No Response to send error to. Likely fatal. Exiting");
+    logger.error(error.stack);
     process.exit(1);
   }
   if (res === undefined || res?.headersSent) {
