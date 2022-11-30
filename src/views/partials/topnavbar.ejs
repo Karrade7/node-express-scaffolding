@@ -1,0 +1,68 @@
+<% 
+const userHTML = {}
+if (locals.loggedInUser && locals.loggedInUser.picture) {
+  userHTML.picture = `<img src= ${loggedInUser.picture} class="rounded-circle z-depth-0" alt="avatar image align-middle" height="35"`
+  userHTML.name = loggedInUser.name
+}else {
+  userHTML.picture ='';
+  userHTML.name = '';
+}
+%>
+
+
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand">New App</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/">Overview</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/integration/aws">Drop Down</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Assess
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><hr class="dropdown-divider"></li>
+            <li><h6 class="dropdown-header">Stuff</h6></li>
+            <li><a class="dropdown-item" href="/helloworld">Hello World</a></li>
+            <li><a class="dropdown-item" href="/">Home</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><h6 class="dropdown-header">Stuff 2.0</h6></li>
+            <li><a class="dropdown-item" href="/">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="badge rounded-pill badge-warning">Premium</div></a> </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+
+      <li class="nav-item dropdown d-flex">
+        <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <%- userHTML.picture %>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+          <li><%= userHTML.name %></li>
+          <li><a class="dropdown-item" href="#">Preferences</a></li>
+          <li><a class="dropdown-item" href="#">My Tasks</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><h6 class="dropdown-header">Automated</h6></li>
+          <li><a class="dropdown-item" href="/logout">Logout</a> </li>
+        </ul>
+      </li>
+    </div>
+
+</nav>

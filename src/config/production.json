@@ -1,0 +1,28 @@
+{
+    "test": "foo",
+    "server": {
+        "PORT": 3000,
+        "SECURE": true
+    },
+    "auth": {
+        "defaultProvider": "oidc_auth0",
+        "oidc_auth0": {
+            "authRequired": false,
+            "auth0Logout": true,
+            "secret": "",
+            "baseURL": "",
+            "clientID": "xxxx",
+            "issuerBaseURL": ""
+        }
+    },
+    "logger": {
+        "levels": {
+            "fatal": 0,
+            "error": 1,
+            "warn": 2,
+            "info": 3,
+            "debug": 4,
+            "trace": 5
+        }
+    }
+}
