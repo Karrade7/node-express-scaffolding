@@ -9,7 +9,9 @@ const logger = require("winston"); // Logger being used
 // Requirements for this script
 import { Application, Request, Response, NextFunction } from "express"; // Common Web application development for NodeJS
 
-function errorHandler(error: Error, res: Response, next: NextFunction) {
+// TODO: Create Error handler to extend Error for Operational errors vs Programmer Errors vs User Errors.
+
+export function errorHandlerWithRender(error: any, req: Request, res: Response, next: NextFunction) {
   if (error === undefined) {
     const error = new Error("Unknown Error");
     error.stack = "Unknown Stack";
@@ -18,7 +20,6 @@ function errorHandler(error: Error, res: Response, next: NextFunction) {
   if (!(error instanceof Error)) {
     error = new Error(error);
     error.stack = "Unknown Stack";
-    //error = err;
   }
   logger.error(`Error Logged:" ${error.message}`);
   if (res === undefined) {
@@ -34,9 +35,25 @@ function errorHandler(error: Error, res: Response, next: NextFunction) {
     logger.error("Exiting");
     process.exit(1);
   }
-  res.render("errors/500", { error: Error });
-  logger.error("Exiting");
-  process.exit(1);
+
+  res.render("errors/500-verbose", { error: error });
+  if (error.level === undefined || error.level == "fatal") {
+    logger.error("Exiting");
+    process.exit(1);
+  }
+}
+
+export function errorHandler(error: Error) {
+  if (error === undefined) {
+    const error = new Error("Unknown Error");
+    error.stack = "Unknown Stack";
+  }
+  if (!(error instanceof Error)) {
+    error = new Error(error);
+    error.stack = "Unknown Stack";
+    //error = err;
+  }
+  logger.error(`Error Logged:" ${error.message}`);
 }
 
 // This is a backup error handler to catch any errors that we didn't expect
@@ -53,5 +70,3 @@ process.on("unhandledRejection", (error: Error) => {
   logger.error(`Uncaught Promise: Stack ${error.stack}`);
   process.exit(1);
 });
-
-module.exports = errorHandler;
